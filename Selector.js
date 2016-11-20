@@ -1,23 +1,23 @@
-
-let Selector
-;(function () {
+let Selector;
+(function () {
   const root = document.documentElement
+    // 事件监听
   const addEventListeners = (listeners, el) => {
-    const selectorClone = Selector(el)
-    const events = Object.keys(listeners)
-    const eventsLen = events.length
+      const selectorClone = Selector(el)
+      const events = Object.keys(listeners)
+      const eventsLen = events.length
 
-    for (let i = 0; i < eventsLen; i++) {
-      const event = events[i]
-      const handlers = listeners[event]
-      const handlersLen = handlers.length
+      for (let i = 0; i < eventsLen; i++) {
+        const event = events[i]
+        const handlers = listeners[event]
+        const handlersLen = handlers.length
 
-      for (let j = 0; j < handlersLen; j++) {
-        selectorClone.on(event, handlers[j])
+        for (let j = 0; j < handlersLen; j++) {
+          selectorClone.on(event, handlers[j])
+        }
       }
     }
-  }
-
+    // 判断元素是否在数组里面
   const inArray = (el, arr) => {
     let i = arr.length
     while (i--) {
@@ -25,6 +25,8 @@ let Selector
     }
     return false
   }
+
+  // 把 DOM 元素数组转成真正的数组
   const toArray = obj => {
     const arr = []
     let i = obj.length
@@ -35,8 +37,11 @@ let Selector
   }
   const getEvents = domElement => domElement.selectorEventListeners
 
+  /**
+   * 选择器选择元素 class, id, tag name or universal selector
+   * 返回数组格式
+   */
   const selectElements = (selector, context = document) => {
-    // class, id, tag name or universal selector
     if (/^[\#.]?[\w-]+$/.test(selector)) {
       const firstChar = selector[0]
       if (firstChar === '.') {
@@ -54,19 +59,15 @@ let Selector
     return toArray(context.querySelectorAll(selector))
   }
   const sanitize = (arr, flattenObjects, requireDomNodes) => {
-    /*
-     * Remove null's from array. Optionally, flatten Selector objects and convert strings and numbers
-     * to DOM text nodes.
-     */
+
+    // 删除数组里面的 null 元素
     const arrLen = arr.length
     let i = arrLen
-
-    // Check if arr needs to be sanitized first (significant perf boost for the most common case)
     while (i--) {
       // arr needs to be sanitized
-      if ((!arr[i] && arr[i] !== 0)
-        || (flattenObjects && arr[i] instanceof Sizze)
-        || (requireDomNodes && (typeof arr[i] === 'string' || typeof arr[i] == 'number'))
+      if ((!arr[i] && arr[i] !== 0) ||
+        (flattenObjects && arr[i] instanceof Sizze) ||
+        (requireDomNodes && (typeof arr[i] === 'string' || typeof arr[i] == 'number'))
       ) {
         const sanitized = []
         for (let j = 0; j < arrLen; j++) {
@@ -87,8 +88,6 @@ let Selector
         return sanitized
       }
     }
-
-    // arr didn't need to be sanitized, return it
     return arr
   }
   const splitNamespaces = event => sanitize(event.split('.'))
@@ -248,15 +247,11 @@ let Selector
     return Selector(removeDuplicates(dom))
   }
   const getEventFromNamespace = event => splitNamespaces(event)[0]
-  const getEventsToRemove = (domElement, event) => /*
-   * Returns an array with the sprintEventListeners events matching potentially
-   * incomplete event names passed to .off().
-   * Example: .off("click.myPlugin") and .off("click.simple") would both remove a
-   * "click.myPlugin.simple" event.
-   */
+  const getEventsToRemove = (domElement, event) => {
     Object.keys(getEvents(domElement)).filter(
       prop => splitNamespaces(event).every(name => inArray(name, splitNamespaces(prop)))
     )
+  }
 
   const getSetDimension = (obj, prop, value) => {
     // get
@@ -264,7 +259,7 @@ let Selector
       const el = obj.get(0)
       if (!el || el.nodeType > 1) return
       const capitalizedProp = prop[0].toUpperCase() + prop.substring(1)
-      // dimension of HTML document
+        // dimension of HTML document
       if (el === document) {
         const offset = root[`offset${capitalizedProp}`]
         const inner = window[`inner${capitalizedProp}`]
@@ -334,14 +329,6 @@ let Selector
         const elementsToInsertLen = elementsToInsert.length
 
         this.each(function (index) {
-          /*
-           * The fragment serves multiple purposes:
-           * 1) It significantly boosts perf when multiple elements are added.
-           * 2) It avoids the need for elementsToInsert.reverse() for afterbegin and afterend
-           * 3) It removes an element from its original position before adding it back, which is
-           * especially useful for elements not part of the DOM tree. That means it's important even
-           * when elementsToInsertLen == 1.
-           */
           const fragment = document.createDocumentFragment()
           for (let i = 0; i < elementsToInsertLen; i++) {
             const element = elementsToInsert[i]
@@ -453,9 +440,10 @@ let Selector
         root.scrollTop = initialScrollPos + 1
         const updatedScrollPos = root.scrollTop
         root.scrollTop = initialScrollPos
-        scrollRoot = updatedScrollPos > initialScrollPos
-          ? root // spec-compliant browsers (like FF34 and IE11)
-          : document.body // naughty boys (like Chrome 39 and Safari 8)
+        scrollRoot = updatedScrollPos > initialScrollPos ?
+          root // spec-compliant browsers (like FF34 and IE11)
+          :
+          document.body // naughty boys (like Chrome 39 and Safari 8)
       }
 
       // get scroll position
@@ -519,9 +507,11 @@ let Selector
         const el = variant === 'all' ? this.get(0) : this
         const prt = el.parentNode
         const next = el.nextSibling
-        variant === 'all'
-          ? this.each(function () { innerWrap.appendChild(this) })
-          : innerWrap.appendChild(el)
+        variant === 'all' ?
+          this.each(function () {
+            innerWrap.appendChild(this)
+          }) :
+          innerWrap.appendChild(el)
         prt.insertBefore(wrapEl, next)
       }
     }
@@ -530,18 +520,20 @@ let Selector
         this.each(function (i) {
           Selector(this)[variant == 'inner' ? 'wrapInner' : 'wrap'](wrappingElement.call(this, i))
         })
-      }
-      else {
-        variant == 'all'
-          ? callback.call(this, wrappingElement, variant)
-          : this.each(function () { callback.call(this, wrappingElement, variant) })
+      } else {
+        variant == 'all' ?
+          callback.call(this, wrappingElement, variant) :
+          this.each(function () {
+            callback.call(this, wrappingElement, variant)
+          })
       }
       return this
     }
   })())
 
   // elements needing a construct already defined by other elements
-  ;['tbody', 'tfoot', 'colgroup', 'caption'].forEach(tag => {
+  ;
+  ['tbody', 'tfoot', 'colgroup', 'caption'].forEach(tag => {
     wrapMap[tag] = wrapMap.thead
   })
   wrapMap.th = wrapMap.td
@@ -549,34 +541,34 @@ let Selector
   // Sizze constructor
   class Sizze {
     constructor(selector, context) {
-      if (typeof selector == 'string') {
-        // create DOM element
-        if (selector[0] === '<') {
-          this.dom = [createDOM(selector)]
+        if (typeof selector == 'string') {
+          // create DOM element
+          if (selector[0] === '<') {
+            this.dom = [createDOM(selector)]
+          } else {
+            // select DOM elements
+            this.dom = context && context instanceof Sizze ?
+              context.find(selector).get() :
+              selectElements(selector, context)
+          }
+        } else if (Array.isArray(selector)) {
+          this.dom = sanitize(selector)
+        } else if (
+          selector instanceof NodeList ||
+          selector instanceof HTMLCollection
+        ) {
+          this.dom = toArray(selector)
+        } else if (selector instanceof Sizze) {
+          return selector
+        } else if (typeof selector == 'function') {
+          return this.ready(selector)
         } else {
-          // select DOM elements
-          this.dom = context && context instanceof Sizze
-            ? context.find(selector).get()
-            : selectElements(selector, context)
+          // assume DOM node
+          this.dom = selector ? [selector] : []
         }
-      } else if (Array.isArray(selector)) {
-        this.dom = sanitize(selector)
-      } else if (
-        selector instanceof NodeList ||
-        selector instanceof HTMLCollection
-      ) {
-        this.dom = toArray(selector)
-      } else if (selector instanceof Sizze) {
-        return selector
-      } else if (typeof selector == 'function') {
-        return this.ready(selector)
-      } else {
-        // assume DOM node
-        this.dom = selector ? [selector] : []
+        this.length = this.dom.length
       }
-      this.length = this.dom.length
-    }
-    // dom methods
+      // dom methods
     add(selector) {
       const dom = this.get()
       const objToAdd = Selector(selector)
@@ -789,13 +781,13 @@ let Selector
       for (let i = 0; i < this.length; i++) {
         const el = this.get(i)
         if (el.nodeType > 1) continue
-        // check if each element in `this` contains the elements to find
+          // check if each element in `this` contains the elements to find
         for (let j = 0; j < elementsToFindLen; j++) {
           const elementToFind = elementsToFind[j]
           if (!el.contains(elementToFind)) continue
           elementsFound[elementsFoundLen++] = elementToFind
           if (elementsFoundLen < elementsToFindLen) continue
-          // everything has been found, return results
+            // everything has been found, return results
           return Selector(elementsFound)
         }
       }
@@ -951,13 +943,16 @@ let Selector
     last() {
       return this.eq(-1)
     }
+    /**
+     * 
+     * 
+     * @param {any} callback
+     * @param {bool} flattenArrays 默认 true
+     * @returns 
+     * 
+     * @memberOf Sizze
+     */
     map(callback, flattenArrays) {
-      /*
-       * flattenArrays (bool, true by default) is for internal usage only (although it might be
-       * interesting to document it publicly).
-       * Many methods rely on map(), thus being able to avoid the unnecessary Array.isArray() check
-       * on each element is a significant perf boost.
-       */
       if (flattenArrays == null) {
         flattenArrays = true
       }
@@ -1002,8 +997,7 @@ let Selector
       return this.map(function (i) {
         if (isFunc) {
           if (selector.call(this, i, this)) return
-        }
-        else {
+        } else {
           if (self.is(selector, this)) return
         }
         return this
@@ -1044,9 +1038,9 @@ let Selector
         return this.each(function () {
           if (this.nodeType > 1) return
           const $this = Selector(this)
-          $this.css('position') == 'static'
-            ? $this.css('position', 'relative')
-            : $this.css({
+          $this.css('position') == 'static' ?
+            $this.css('position', 'relative') :
+            $this.css({
               top: 0,
               left: 0
             })
@@ -1100,8 +1094,6 @@ let Selector
             }
             getEvents(this)[event].push(handler)
 
-            // Ensure we add both the standard event (eg: "click") and the full event
-            // (eg: "click.foo") in order to be able to trigger them manually and programmatically.
             this.addEventListener(event, handler)
             if (!isNamespaced(event)) return
             this.addEventListener(getEventFromNamespace(event), handler)
@@ -1119,12 +1111,15 @@ let Selector
     parent(selector) {
       return findAncestors.call(this, true, true, false, selector)
     }
-
+    /**
+     * 
+     * @param {any} selector
+     * @returns
+     * 和 jQuery不同的地方；1.$("html").parent() and $("html").parents()返回一个空的集合； 2.返回的集合不能进行倒序
+     * 
+     * @memberOf Sizze
+     */
     parents(selector) {
-      /* Differences with jQuery:
-       * 1. $("html").parent() and $("html").parents() return an empty set.
-       * 2. The returned set won't be in reverse order.
-       */
       return findAncestors.call(this, true, false, false, selector)
     }
 

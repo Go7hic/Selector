@@ -1,0 +1,19 @@
+{
+  "name": "next-selector",
+  "version": "1.0.0",
+  "description": "一个面向现代浏览器的 DOM 操作库",
+  "main": "Selector.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dyygtfx/Selector.git"
+  },
+  "author": "Go7hic",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dyygtfx/Selector/issues"
+  },
+  "homepage": "https://github.com/dyygtfx/Selector#readme"
+}
