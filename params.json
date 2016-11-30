@@ -1,6 +1,0 @@
-{
-  "name": "Selector",
-  "tagline": "Selector.js 是一个面对现代浏览器的 DOM 操作库",
-  "body": "Selector.js 是一个面对现代浏览器的 DOM 操作库。Selector 和 jQuery, Zepto 的 DOM 操作 API 一样，但是性能比它们更好。",
-  "note": "Don't delete this file! It's used internally to help with page regeneration."
-}
